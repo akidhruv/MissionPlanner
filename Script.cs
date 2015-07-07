@@ -202,5 +202,65 @@ namespace MissionPlanner
 
             return true;
         }
+
+        public bool arm_motors(int timeout)
+        {
+            int timein = 0;
+
+            ChangeMode("Auto");
+            
+
+            ChangeMode("RTL");
+            
+
+            for (int i=1; i<=6; i++)
+            {
+                SendRC(i, 1500, false);
+            }
+
+            SendRC(3, Convert.ToUInt16(GetParam("RC3_MIN")), true);
+
+
+            while (!MainV2.comPort.MAV.cs.armed)
+            {
+                ChangeMode("Stabilize");
+
+                SendRC(3, Convert.ToUInt16(GetParam("RC3_MIN")), true);
+                SendRC(4, Convert.ToUInt16(GetParam("RC4_MAX")), true);
+
+                System.Threading.Thread.Sleep(4000);
+                
+
+                SendRC(4, Convert.ToUInt16((GetParam("RC4_MAX") + GetParam("RC4_MIN")) / 2), true);
+
+                if(MainV2.comPort.MAV.cs.armed)
+                { ; }
+
+                else if (timein >= timeout)
+                {
+
+                    if (MainV2.comPort.MAV.cs.gpshdop > 3)
+                    {
+                        CustomMessageBox.Show("Cannot arm, check GPS.");
+                    }
+
+                    else
+                    {
+                        CustomMessageBox.Show("Cannot arm, system error.");
+                    }
+
+                    return false;
+                }
+
+                timein += 4000;
+
+            }
+
+            return true;
+        }
+
+
+        
+
     }
 }

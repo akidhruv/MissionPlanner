@@ -667,7 +667,39 @@ namespace MissionPlanner
         {
             lock (this)
             {
+                int override_counter = 1;
+                if (ch7in > 1700 && override_counter==1)
+                {
+                    override_counter += 1;
 
+                    MAVLink.mavlink_rc_channels_override_t rc_over = new MAVLink.mavlink_rc_channels_override_t();  
+                    rcoverridech1 = 0;
+                    rc_over.chan1_raw = 0;
+                 
+                    rcoverridech2 = 0;
+                    rc_over.chan2_raw = 0;
+                   
+                    rcoverridech3 = 0;
+                    rc_over.chan3_raw = 0;
+                 
+                    rcoverridech4 = 0;
+                    rc_over.chan4_raw = 0;
+                  
+                    rcoverridech5 = 0;
+                    rc_over.chan5_raw = 0;
+                   
+                    rcoverridech6 = 0;
+                    rc_over.chan6_raw = 0;
+
+                    rc_over.target_component = MainV2.comPort.MAV.compid;
+                    rc_over.target_system = MainV2.comPort.MAV.sysid;
+
+                    MainV2.comPort.sendPacket(rc_over);
+                    System.Threading.Thread.Sleep(20);
+                    MainV2.comPort.sendPacket(rc_over);
+
+                }
+                
                 if (DateTime.Now > lastupdate.AddMilliseconds(50) || updatenow) // 20 hz
                 {
                     lastupdate = DateTime.Now;
